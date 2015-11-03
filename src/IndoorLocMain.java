@@ -1,61 +1,27 @@
-import com.alien.enterpriseRFID.discovery.*;
 import com.alien.enterpriseRFID.reader.*;
 
-
-
-
-public class IndoorLocMain implements DiscoveryListener {
-	public void NetworkDiscovery() throws Exception{
-		NetworkDiscoveryListenerService service = new NetworkDiscoveryListenerService();
-		service.setDiscoveryListener(this);
-		service.startService();
-		while(service.isRunning()){
-			Thread.sleep(100);
-		}
-	}
-	public void readerAdded(DiscoveryItem discoveryItem){
-		System.out.println("Added:\n" + discoveryItem.toString());
+public class IndoorLocMain {
 		
-	}
-
-	public void readerRenewed(DiscoveryItem discoveryItem){
-		System.out.println("Renew " + discoveryItem.toString());
-	}
-
-	public void readerRemoved(DiscoveryItem discoveryItem){
-		System.out.println("Removed:\n" + discoveryItem.toString());
-	}
-	
 	public static void main(String [] args) {
 		
-		DiscoveryItem discoveryItem = new DiscoveryItem();
-		AlienClass1Reader reader = new AlienClass1Reader();
-//		NetworkDiscoveryListenerService service = new NetworkDiscoveryListenerService();
-//		service.setDiscoveryListener(this);
-//		try
-//		{
-//		service.startService();
-//		}catch(AlienDiscoverySocketException e0)
-//		{
-//			System.out.println("Reader refused connection.");
-//			System.exit(0);
-//		}
-//		while(service.isRunning());
-//			Thread.sleep(100);
-//		}
+		
 		
 	
 	//discoverReader opens and tests the connection with the reader
 		//this discovers the reader automatically and associates it with discoveryItem
-		try
-		{
-			reader = discoveryItem.getReader();
-		}catch(AlienDiscoveryUnknownReaderException e1)
-		{
-			System.out.println("Reader not found.");
-			System.exit(1);
-		}
+//		try
+//		{
+//			reader = discoveryItem.getReader();
+//		}catch(AlienDiscoveryUnknownReaderException e1)
+//		{
+//			System.out.println("Reader not found.");
+//			System.exit(1);
+//		}
 		
+		//Create a connection with the known IP
+		AlienClass1Reader reader = new AlienClass1Reader();
+		reader.setConnection("192.168.0.8", 5000);//port here
+				
 		//this opens the connection with the reader for communication
 		try
 		{
@@ -94,10 +60,28 @@ public class IndoorLocMain implements DiscoveryListener {
 		}
 		
 		//output identifiers for the reader
-		System.out.println("Connection Established to " + discoveryItem.getUsername());
-		System.out.println("Reader Type: " + discoveryItem.getReaderType() + " ver. " + discoveryItem.getReaderVersion());
-		System.out.println("Reader Address: " + discoveryItem.getReaderAddress());
-		System.out.println("Reader MAC Address: " + discoveryItem.getReaderMACAddress());
+		System.out.println("Connection Established to " + reader.getUsername());
+		try {
+			System.out.println("Reader Type: " + reader.getReaderType() + " ver. " + reader.getReaderVersion());
+		} catch (AlienReaderException e7) {
+			
+			System.out.println("Could not read ReaderType/ReaderVersion.");
+			System.exit(7);
+		}
+		
+		try {
+			System.out.println("Reader Address: " + reader.getIPAddress());
+		} catch (AlienReaderException e8) {
+			System.out.println("Could not read ReaderIP.");
+			System.exit(8);
+		}
+		
+		try {
+			System.out.println("Reader MAC Address: " + reader.getMACAddress());
+		} catch (AlienReaderException e9) {
+			System.out.println("Could not read ReaderMAC.");
+			System.exit(9);
+		}
 		
 		//close connection with the reader for now
 		reader.close();
