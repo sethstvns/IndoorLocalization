@@ -1,4 +1,5 @@
 import com.alien.enterpriseRFID.reader.*;
+import com.alien.enterpriseRFID.tags.Tag;
 
 public class IndoorLocMain {
 		
@@ -20,8 +21,26 @@ public class IndoorLocMain {
 		
 		//Create a connection with the known IP
 		AlienClass1Reader reader = new AlienClass1Reader();
-		reader.setConnection("192.168.0.8", 5000);//port here
-				
+		reader.setNetworkConnection("192.168.0.8", 23);//port here
+		reader.setUsername("alien");
+		reader.setPassword("password");
+		
+		//turn off autonomous mode if it is on
+		try {
+			reader.autoModeReset();
+		} catch (AlienReaderException e1) {
+			System.out.println("autoMode reset broke.");
+			System.exit(1);
+		}
+
+		try {
+			reader.getAutoMode();
+		} catch (AlienReaderException e0) {
+			System.out.println("test failed.");
+			System.exit(0);
+		}
+		
+		System.out.println(reader.getReaderReply());
 		//this opens the connection with the reader for communication
 		try
 		{
@@ -43,12 +62,13 @@ public class IndoorLocMain {
 			System.out.println("Communication with reader timed out.");
 			System.exit(5);
 		}
+		System.out.println(reader.getReaderReply());
 		
 		//Test for open reader 1
 		if(!reader.isOpen()){
 			System.out.println("Connection with reader is not open and it should be at this point");
 		}
-		
+		System.out.println(reader.getReaderReply());
 		//Test for open reader 2
 		try
 		{
@@ -57,6 +77,16 @@ public class IndoorLocMain {
 		{
 			System.out.println("Connection with reader could not be established.");
 			System.exit(6);
+		}
+		System.out.println(reader.getReaderReply());
+		
+		//set network timeout (currently 2 min)
+		try
+		{
+			reader.setNetworkTimeout(180);
+		} catch(AlienReaderException e1) {
+			System.out.println("Could not set network timeout.");
+			System.exit(1);
 		}
 		
 		//output identifiers for the reader
@@ -83,7 +113,17 @@ public class IndoorLocMain {
 			System.exit(9);
 		}
 		
-		//close connection with the reader for now
+		Tag[] tagList0 = null;
+		try {
+			tagList0 = reader.getTagList();
+		} catch (AlienReaderException e10) {
+			System.out.println("Could not return tag list.");
+			System.exit(10);
+		}
+		
+		System.out.println(tagList0[0]);
+		
+		//close connection with the reader
 		reader.close();
 
 	}
